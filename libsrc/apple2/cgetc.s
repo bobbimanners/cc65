@@ -13,7 +13,7 @@
 
 _cgetc:
         ; Cursor on ?
-        lda     cursor
+l1:     lda     cursor
         beq     :+
 
         ; Show caret.
@@ -29,7 +29,6 @@ _cgetc:
         bne     :+
         inc     RNDH            ; Increment random counter high
 :       lda     KBD
-        bpl     :--             ; If < 128, no key pressed
 
         ; Cursor on ?
         ldy     cursor
@@ -41,8 +40,11 @@ _cgetc:
         jsr     putchardirect
         pla
 
+:       cmp     #$00
+        bpl     l1              ; If < 128, no key pressed
+
         ; At this time, the high bit of the key pressed is set.
-:       bit     KBDSTRB         ; Clear keyboard strobe
+        bit     KBDSTRB         ; Clear keyboard strobe
         .ifdef __APPLE2ENH__
         bit     BUTN0           ; Check if OpenApple is down
         bmi     done
